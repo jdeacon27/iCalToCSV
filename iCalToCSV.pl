@@ -1,6 +1,6 @@
 # Process an iCal file extracting start date and description
-# This is intended for converting my Google calendar export
-# into a CSV I can import to my Dear Diary spreadsheets.
+# This is intended for converting a Google calendar export
+# into a CSV for import into a "Dear Diary" spreadsheets.
 #
 # For some reason, gcal adds newlines at the start of descriptions.
 # I attempt to strip one of these out.
@@ -22,6 +22,8 @@
 # 11-Aug-18 More entries have turned up where Google adds multiple \n at the start of
 #			the descrition. I've modified the description's RE.
 # 11-Aug-18	Change processDate() to return its results.
+# 12-Aug-18	Add rest of seemingly intersting fields. It's possible that people
+#			will find other iCal fields that are of interest.
 
 use strict;
 use Data::Dumper;
