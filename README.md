@@ -18,9 +18,11 @@ Usage:
 iCalToCSV.pl [--help] [-ysteudla] --start=STARTDATE --end=ENDDATE \<INFILE \>OUTFILE
 
 The STARTDATE and ENDDATE parameters should be given in reverse date style: yyyymmdd, e.g.:
+
 	--start=20171225
 
 and where y,s,e,t, etc. are switches for inclusion of the various iCalendar fields:
+
 	y = Summary (Event name)
 	s = Start Date
 	e = End Date
