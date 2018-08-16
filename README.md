@@ -10,7 +10,7 @@ Converts iCal to CSV (comma separated values), for subsequent import into someth
 
 It doesn't check the calendar (which would not be difficult to add) and will export all events within the date range. A date range is the only way to select the entries that are processed and exported, and the date range arguments are mandatory.
 
-Within the events selcted by the date range parameter, you can choose the fields to be exported using the -ystd etc. arguments. If no -ysteud etc. arguments are supplied, the default is to export start date and description.
+Within the events selcted by the date range parameter, you can choose the fields to be exported using the -yst etc. arguments. If no -ysteud etc. arguments are supplied, the default is to export start date and description (-sd).
 
 This was originally written to process diary entries exported from Google Calendar; diary entries which were "All Day" events. iCalendar has two DATE styles, one of which is untimed. That's what Google Calendar uses for All Day events and this is detected. If you elect to include the time of an All Day event, you'll get 0:0:0. Google, however, also sets an End Date on All Day events. End dates on All Day events are ignored; if you elect to include the end of an All Day event, you'll get blanks in the output.
 
