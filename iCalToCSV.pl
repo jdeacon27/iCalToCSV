@@ -28,6 +28,8 @@
 # 12-Aug-18	Add rest of seemingly intersting fields. It's possible that people
 #			will find other iCal fields that are of interest.
 # 15-Aug-18	Change from warn function for debug to conditional STDLOGing
+# 16-Aug-18	Correct usage to match github README.MD
+# 16-Aug-18 Change a complicated 'if' into an 'unless'; and correct processing of --help option
 
 use strict;
 use Data::Dumper;
@@ -36,25 +38,24 @@ use Tie::IxHash;
 
 my $false = 0; my $true = 1;
 my $debug = $false;
-my $usageString = "\nUsage: iCalToCSV.pl [--help] [-sed] --start=STARTDATE --end=ENDDATE <INFILE >OUTFILE\n".
+my $usageString = "\nUsage: iCalToCSV.pl [--help] [-ysteudla] --start=STARTDATE --end=ENDDATE <INFILE >OUTFILE\n".
 			"The STARTDATE and ENDDATE parameters should be given in reverse date style: yyyymmdd e.g.:\n".
 			"--start=20171225\n".
-			"and where s,e,d, etc. are switches for inclusion of the various iCalendar fields:\n".
-			"s = Start Date\ne = End Date\nt = Start Time\nu = EndTime\nd = Description\n".
-			"l = Location\na = Status\n".
-			"y = Name of Entry (what iCal calls the SUMMARY)\n";
-my $helpString ="Converts iCal to CSV (comma separated values), for subsequent import into something like Excel.\n\n".
+			"and where y,s,e, etc. are switches for inclusion of the various iCalendar fields:\n".
+			"y = Summary (Event name)\ns = Start Date\ne = End Date\nt = Start Time\nu = EndTime\nd = Description\n".
+			"l = Location\na = Status\n";
+my $helpString = "Converts iCal to CSV (comma separated values), for subsequent import into something like Excel.\n\n".
 			"It doesn't check the calendar (which would not be difficult to add) and will export ".
 			"all events within the date range.\n\n".
 			"The date range is the only way to select the entries that are processed and exported, and those arguments are mandatory.".
 			"Within the events selcted by the date range parameter, you can choose the fields to ".
-			"be exported using the -sed etc. arguments. If no -sed etc. arguments are supplied, the ".
-			"default is to export start date and description.\n\n".
+			"be exported using the -ysteud etc. arguments. If no -ysteud etc. arguments are supplied, the ".
+			"default is to export start date and description (-sd).\n\n".
 			"This was originally written to process diary entries exported from Google Calendar; ".
-			"diary entries which were \"all day\" events. iCalendar has two DATE styles, one of ".
+			"diary entries which were \"All Day\" events. iCalendar has two DATE styles, one of ".
 			"which is untimed. That's what Google Calendar uses and this is detected. ".
-			"If you elect to print the time of an all day event, you'll get 0:0:0. Google, however, ".
-			"also sets an End Date on all day events. End dates on all day events are ignored; you'll ".
+			"If you elect to print the time of an All Day event, you'll get 0:0:0. Google, however, ".
+			"also sets an End Date on All Day events. End dates on All Day events are ignored; you'll ".
 			"get blanks in the output.";
 
 my $processingEvent = $false;
@@ -101,7 +102,8 @@ sub processDate {
 sub parseArguments {
 	Getopt::Long::Configure ("bundling");
 	GetOptions (\%fields, 'start=i', 'end=i', 'y', 's', 'e', 't', 'u', 'd', 'l', 'a', 'help');
-	if ( ! ((exists $fields{start}) && (exists $fields{end})) ) {
+	unless ( ((exists $fields{start}) && (exists $fields{end})) ||
+				exists $fields{help} ) {
 		die $usageString;
 	}
 
