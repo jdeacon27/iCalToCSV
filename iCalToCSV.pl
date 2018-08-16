@@ -27,12 +27,15 @@
 # 11-Aug-18	Change processDate() to return its results.
 # 12-Aug-18	Add rest of seemingly intersting fields. It's possible that people
 #			will find other iCal fields that are of interest.
+# 15-Aug-18	Change from warn function for debug to conditional STDLOGing
 
 use strict;
 use Data::Dumper;
 use Getopt::Long;
 use Tie::IxHash;
 
+my $false = 0; my $true = 1;
+my $debug = $false;
 my $usageString = "\nUsage: iCalToCSV.pl [--help] [-sed] --start=STARTDATE --end=ENDDATE <INFILE >OUTFILE\n".
 			"The STARTDATE and ENDDATE parameters should be given in reverse date style: yyyymmdd e.g.:\n".
 			"--start=20171225\n".
@@ -54,7 +57,6 @@ my $helpString ="Converts iCal to CSV (comma separated values), for subsequent i
 			"also sets an End Date on all day events. End dates on all day events are ignored; you'll ".
 			"get blanks in the output.";
 
-my $false = 0; my $true = 1;
 my $processingEvent = $false;
 my $processingDescription = $false;
 my $foundStartDate = $false;
@@ -108,11 +110,11 @@ sub parseArguments {
 
 	# Create one string with the single -sed etc. arguments concatenated and, hopefully, in order
 	foreach ( keys %fields ) {
-#TRACE warn "$_ = $fields{$_}\n";
+if ( $debug ) { print STDERR "$_ = $fields{$_}\n"; }
 		$fieldSwitches .= $_ if length == 1; 	# length defaults to taking $_ as its argument
 	}
 	$numberOfFieldsWanted = length($fieldSwitches);
-#TRACE warn "\$fieldSwitches = $fieldSwitches";
+if ( $debug ) { print STDERR "\$fieldSwitches = $fieldSwitches"; }
 	# TODO Will the following become redundant when we process the loop based on the array of references built up from the field switches?
 	$summaryWanted = $true if exists $fields{y};
 	$startDateWanted = $true if exists $fields{s};
@@ -179,8 +181,7 @@ sub orderColumns {
 		}
 	}
 	print "\n";
-#TRACE
-warn "\$#functionRefs = @{[$#functionRefs + 1]}\n";	# That's a dense trick to perform arithmetic in an interpolated string. See https://stackoverflow.com/questions/3939919/can-perl-string-interpolation-perform-any-expression-evaluation
+if ( $debug ) { print STDERR "\$#functionRefs = @{[$#functionRefs + 1]}\n"; }	# That's a dense trick to perform arithmetic in an interpolated string. See https://stackoverflow.com/questions/3939919/can-perl-string-interpolation-perform-any-expression-evaluation
 	return;
 }
 
@@ -235,7 +236,7 @@ sub callFieldEmitters {
 	my $index;
 	if ( $dateInPeriod ) {
 		for ($index = 0; $index < $numberOfFieldsWanted; $index++) {
-#TRACE warn "\$index = $index\n";
+if ( $debug ) { print STDERR "\$index = $index\n"; }
 			$functionRefs[$index]->();
 			print "," unless ( $numberOfFieldsWanted == 1 || $index == $numberOfFieldsWanted-1 );
 		}
@@ -263,22 +264,17 @@ orderColumns();
 # $functionRefs[0] = \&emitDate;
 # $functionRefs[1] = \&emitDescription;
 
-#TRACE
-warn "\$fieldSwitches = $fieldSwitches";
-#TRACE
-warn "\$numberOfFieldsWanted = $numberOfFieldsWanted";
-#TRACE
-my $tracer; foreach (keys %fields ) { $tracer .= $_; } warn "$tracer\n";
-#TRACE
+if ( $debug ) { print STDERR "\$fieldSwitches = $fieldSwitches"; }
+if ( $debug ) { print STDERR "\$numberOfFieldsWanted = $numberOfFieldsWanted"; }
 
 # Loop
 while( <> ) {
 	if ( /BEGIN:VEVENT/ ) {
-		warn " VEVENT BEGIN encountered while already processing VEVENT" if $processingEvent;
+		warn " WARNING: VEVENT BEGIN encountered while already processing VEVENT" if $processingEvent;
 		$processingEvent = $true;
 	}
 	if ( /END:VEVENT/ ) {
-		warn " VEVENT END encountered when not processing VEVENT" if !$processingEvent;
+		warn " WARNING: VEVENT END encountered when not processing VEVENT" if !$processingEvent;
 		callFieldEmitters();
 	}
 	if ( $processingDescription ) {
@@ -298,14 +294,14 @@ while( <> ) {
 	# thereupon ignore the end date, with $foundUntimedStartDate
 	
 	if ( /DTSTART:((\d{4})(\d{2})(\d{2}))T(\d{2})(\d{2})(\d{2}).*/ ) {
-		warn "Entry with a time. Forget to make an entry All Day? $4\/$3\/$2\n";
-		# warn "Found DATE more than once" if $foundStartDate;
+		warn " WARNING: Entry with a time. Forget to make an entry All Day? $4\/$3\/$2\n";
+		# warn " WARNING: Found DATE more than once" if $foundStartDate;
 		$foundStartDate = $true;
 		($startDate, $startTime) = processDate($4, $3, $2, $1, $5, $6, $7);
 	}
 
 	if ( /DTSTART;VALUE=DATE:((\d{4})(\d{2})(\d{2}))/ ) {	# NB nested backreferences
-		# warn "Found DATE more than once" if $foundStartDate;
+		# warn " WARNING: Found DATE more than once" if $foundStartDate;
 		$foundStartDate = $true;
 		$foundUntimedStartDate = $true;
 		($startDate, $startTime) = processDate($4, $3, $2, $1, 00, 00, 00);
@@ -322,7 +318,7 @@ while( <> ) {
 	if ( /DESCRIPTION:(\\n)*(.*)/ ) {
 		if ( $dateInPeriod ) {
 			# This is a bit lonely now that more fields are processed. See Notes
-			warn "Found DESCRIPTION without having found DATE" if !$foundStartDate;
+			warn " WARNING: Found DESCRIPTION without having found DATE" if !$foundStartDate;
 			$processingDescription = $true;
 			if ( $2 eq '' ) {
 				$description = "EMPTY DESCRIPTION";
