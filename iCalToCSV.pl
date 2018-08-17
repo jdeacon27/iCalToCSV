@@ -30,6 +30,8 @@
 # 15-Aug-18	Change from warn function for debug to conditional STDLOGing
 # 16-Aug-18	Correct usage to match github README.MD
 # 16-Aug-18 Change a complicated 'if' into an 'unless'; and correct processing of --help option
+# 17-Aug-18	Tidy up a 'die'. Tidy up by deleting some commented out lines. Tidy up, deleting
+#			some out of date notes.
 
 use strict;
 use Data::Dumper;
@@ -257,14 +259,10 @@ if ( $debug ) { print STDERR "\$index = $index\n"; }
 # Main
 parseArguments();
 if ( exists $fields{help} ) {
-	warn "$usageString\n";
-	warn "$helpString\n";
-	die;
+	die "$usageString\n$helpString\n";
 }
+
 orderColumns();
-# Set up the hash of funtion references
-# $functionRefs[0] = \&emitDate;
-# $functionRefs[1] = \&emitDescription;
 
 if ( $debug ) { print STDERR "\$fieldSwitches = $fieldSwitches"; }
 if ( $debug ) { print STDERR "\$numberOfFieldsWanted = $numberOfFieldsWanted"; }
@@ -364,10 +362,6 @@ while( <> ) {
 }
 
 # Notes
-# I could construct a string with the argument letters in order of declaration,
-# if Perl hashes do indeed preserve the order of declaration.
-# Then I could use the characters of that string, in order, to despatch to the
-# various column printing routines, probably using function references.
 #
 # Currently assumes that the SUMMARY (what you or I would call the Name of the entry)
 # takes a single line in the iCal file. If it can be multiple lines (indeed any other
@@ -389,3 +383,5 @@ while( <> ) {
 #
 # Could add a switch --checkForEmpty and only put in all those "EMPTY DESCRIPTION"s
 # etc. if the switch is present.
+
+# Could add a switch to turn off my "Did you add an entry with a time?" warnings.
