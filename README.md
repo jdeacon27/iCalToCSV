@@ -15,7 +15,7 @@ Within the events selcted by the date range parameter, you can choose the fields
 This was originally written to process diary entries exported from Google Calendar; diary entries which were "All Day" events. iCalendar has two DATE styles, one of which is untimed. That's what Google Calendar uses for All Day events and this is detected. If you elect to include the time of an All Day event, you'll get 0:0:0. Google, however, also sets an End Date on All Day events. End dates on All Day events are ignored; if you elect to include the end of an All Day event, you'll get blanks in the output.
 
 Usage:
-iCalToCSV.pl [--help] [-ysteudla] --start=STARTDATE --end=ENDDATE \<INFILE \>OUTFILE
+	iCalToCSV.pl [--help] [-ysteudla] --start=STARTDATE --end=ENDDATE \<INFILE \>OUTFILE
 
 The STARTDATE and ENDDATE parameters should be given in reverse date style: yyyymmdd, e.g.:
 
