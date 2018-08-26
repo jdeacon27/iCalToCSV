@@ -33,6 +33,8 @@
 # 17-Aug-18	Tidy up a 'die'. Tidy up by deleting some commented out lines. Tidy up, deleting
 #			some out of date notes.
 
+# 26-Aug-18 Declare this version 1.0
+
 use strict;
 use Data::Dumper;
 use Getopt::Long;
